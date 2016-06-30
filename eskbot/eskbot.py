@@ -1,11 +1,13 @@
+import os
+import sys
+
+import aiml
 from twisted.internet import reactor, protocol
 from twisted.words.protocols import irc
 
-import aiml
-import sys
-
 
 STARTUP_FILE = './std-startup.xml'  # Move this to some config file maybe
+BRAIN_FILE = './bot_brain.brn'
 
 
 class EskBot(irc.IRCClient):
@@ -14,10 +16,7 @@ class EskBot(irc.IRCClient):
     def signedOn(self):
         """
         Called once the bot has connected to the IRC server.
-
-        Loads the brain, and joins a channel.
         """
-
         self.join(self.factory.channel)
 
     def privmsg(self, user, channel, message):
@@ -26,7 +25,6 @@ class EskBot(irc.IRCClient):
         private message or in a channel.
         """
         user = user.split('!', 1)[0]
-        # TODO: figure out what message to respond with. Echo for now.
         reply_message = self.build_reply(message)
 
         if channel == self.nickname:
@@ -36,12 +34,11 @@ class EskBot(irc.IRCClient):
 
         elif message.startswith(self.nickname + ':'):
             # This message is directed at me, so I will respond.
-
             self.msg(channel, user + ': ' + reply_message)
 
     def build_reply(self, message):
         """
-        Based on some AI magics, compose a response to the message sent to me.
+        Based on some AI magicks, compose a response to the message sent to me.
         """
         if message.startswith(self.nickname + ':'):
             # Remove my name from the message.
@@ -54,6 +51,7 @@ class EskBot(irc.IRCClient):
         if ai_response:
             return ai_response
         else:
+            # Science has failed us. We are on our own.
             return "Perhaps."
 
 
@@ -64,8 +62,14 @@ class EskBotFactory(protocol.ClientFactory):
 
     def setup_aiml_kernel(self, file_to_learn):
         self.kernel = aiml.Kernel()
-        self.kernel.learn(file_to_learn)
-        self.kernel.respond("load aiml b")
+        if os.path.isfile(BRAIN_FILE):
+            self.kernel.bootstrap(brainFile=BRAIN_FILE)
+        else:
+            self.kernel.bootstrap(
+                learnFiles=file_to_learn,
+                commands='load aiml b'
+            )
+            self.kernel.saveBrain(BRAIN_FILE)
 
     def buildProtocol(self, addr):
         proto = EskBot()
