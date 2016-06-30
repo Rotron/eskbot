@@ -7,6 +7,11 @@
         <pattern>LOAD AIML B</pattern>
         <!-- Template is the response to the pattern -->
         <template>
+            <!-- This is the suggested file loading order for A.L.I.C.E
+                 (https://code.google.com/archive/p/aiml-en-us-foundation-alice/wikis/AIMLFileLoadingOrder.wiki).
+                 Be very careful when changing this order. -->
+
+            <!-- Also, we can perhaps be smarter with the regex. -->
             <learn>alice/reduction*.safe.aiml</learn>
             <learn>alice/reductions-update.aiml</learn>
             <learn>alice/mp*.aiml</learn>
