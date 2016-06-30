@@ -1,7 +1,12 @@
 from twisted.internet import reactor, protocol
 from twisted.words.protocols import irc
 
+import aiml
 import sys
+
+
+BRAIN_STARTUP_FILE = './brain/std-startup.xml'
+
 
 class EskBot(irc.IRCClient):
     nickname = "eskarina"
@@ -9,7 +14,10 @@ class EskBot(irc.IRCClient):
     def signedOn(self):
         """
         Called once the bot has connected to the IRC server.
+
+        Loads the brain, and joins a channel.
         """
+
         self.join(self.factory.channel)
 
     def privmsg(self, user, channel, message):
@@ -39,12 +47,17 @@ class EskBot(irc.IRCClient):
             # Remove my name from the message.
             message = message[len(self.nickname + ':'):]
 
+        ai_response = self.factory.kernel.respond(message)
+
         return message  # TODO: echoing it back for now.
 
 
 class EskBotFactory(protocol.ClientFactory):
     def __init__(self, channel):
         self.channel = channel
+        self.kernel = aiml.Kernel()
+        self.kernel.learn(BRAIN_STARTUP_FILE)
+        self.kernel.respond("load aiml b")
 
     def buildProtocol(self, addr):
         proto = EskBot()
