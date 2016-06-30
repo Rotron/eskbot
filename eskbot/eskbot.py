@@ -5,7 +5,7 @@ import aiml
 import sys
 
 
-BRAIN_STARTUP_FILE = './brain/std-startup.xml'
+STARTUP_FILE = './std-startup.xml'  # Move this to some config file maybe
 
 
 class EskBot(irc.IRCClient):
@@ -37,7 +37,7 @@ class EskBot(irc.IRCClient):
         elif message.startswith(self.nickname + ':'):
             # This message is directed at me, so I will respond.
 
-            self.msg(channel, user + ':' + reply_message)
+            self.msg(channel, user + ': ' + reply_message)
 
     def build_reply(self, message):
         """
@@ -45,18 +45,26 @@ class EskBot(irc.IRCClient):
         """
         if message.startswith(self.nickname + ':'):
             # Remove my name from the message.
-            message = message[len(self.nickname + ':'):]
+            message = message[len(self.nickname + ':'):].strip()
 
+        # TODO: maybe put this in a try-except block, once I know what errors
+        # to expect. For now, let it fail loudly.
         ai_response = self.factory.kernel.respond(message)
 
-        return message  # TODO: echoing it back for now.
+        if ai_response:
+            return ai_response
+        else:
+            return "Perhaps."
 
 
 class EskBotFactory(protocol.ClientFactory):
     def __init__(self, channel):
         self.channel = channel
+        self.setup_aiml_kernel(STARTUP_FILE)
+
+    def setup_aiml_kernel(self, file_to_learn):
         self.kernel = aiml.Kernel()
-        self.kernel.learn(BRAIN_STARTUP_FILE)
+        self.kernel.learn(file_to_learn)
         self.kernel.respond("load aiml b")
 
     def buildProtocol(self, addr):
