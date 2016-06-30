@@ -7,9 +7,17 @@
         <pattern>LOAD AIML B</pattern>
         <!-- Template is the response to the pattern -->
         <template>
-            <learn>alice/reduction*.aiml</learn>
+            <learn>alice/reduction*.safe.aiml</learn>
+            <learn>alice/reductions-update.aiml</learn>
             <learn>alice/mp*.aiml</learn>
-            <learn>alice/*.aiml</learn>
+            <learn>alice/[a-l]*.aiml</learn>
+            <learn>alice/money.aiml</learn>
+            <learn>alice/movies.aiml</learn>
+            <learn>alice/music.aiml</learn>
+            <learn>alice/[n-q].aiml</learn>
+            <learn>alice/reduction.names.aiml</learn>
+            <learn>alice/religion.aiml</learn>
+            <learn>alice/[s-z]*.aiml</learn>
         </template>
 
     </category>
