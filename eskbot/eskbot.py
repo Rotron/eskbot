@@ -25,16 +25,15 @@ class EskBot(irc.IRCClient):
         private message or in a channel.
         """
         user = user.split('!', 1)[0]
-        reply_message = self.build_reply(message)
 
         if channel == self.nickname:
             # This is a private message to me, so I will respond directly to
             # the user.
-            self.msg(user, reply_message)
+            self.msg(user, self.build_reply(message))
 
         elif message.startswith(self.nickname + ':'):
             # This message is directed at me, so I will respond.
-            self.msg(channel, user + ': ' + reply_message)
+            self.msg(channel, user + ': ' + self.build_reply(message))
 
     def build_reply(self, message):
         """
